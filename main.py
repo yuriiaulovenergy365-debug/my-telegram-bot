@@ -4,11 +4,24 @@ from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
+import os
+from aiogram import Bot, Dispatcher, types
+# ... інші імпорти
 
-# 1. КОНФІГУРАЦІЯ
-TOKEN = "8190360942:AAGiKEu3kbGJXv1VunH_75StcOlezCHCgBw"
-# Формат: postgresql+asyncpg://користувач:пароль@хост/назва_бази
-DB_URL = "postgresql+asyncpg://postgres:@db.alefycnhibdovbyodwcb.supabase.co:5432/postgres"
+# 1. КОНФІГУРАЦІЯ (беремо дані з системи, а не з тексту)
+TOKEN = os.getenv("BOT_TOKEN")
+DB_URL = os.getenv("DATABASE_URL")
+
+# Перевірка, чи завантажились дані (допоможе при відладці)
+if not TOKEN or not DB_URL:
+    print("Помилка: BOT_TOKEN або DATABASE_URL не знайдені в змінних оточення!")
+    exit(1)
+
+# Додаємо драйвер asyncpg, якщо його немає в рядку з Render/Supabase
+if "asyncpg" not in DB_URL:
+    DB_URL = DB_URL.replace("postgresql://", "postgresql+asyncpg://")
+
+engine = create_async_engine(DB_URL, echo=False)
 
 # Створюємо "двигун" для бази даних
 engine = create_async_engine(DB_URL, echo=False)
