@@ -1,4 +1,3 @@
-import os
 import asyncio
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
@@ -6,21 +5,15 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 
-# --- 1. ОТРИМАННЯ ДАНИХ З RAILWAY (ENVIRONMENT VARIABLES) ---
-TOKEN = os.getenv("BOT_TOKEN")
-DB_URL = os.getenv("DATABASE_URL")
+# --- 1. ПРЯМА КОНФІГУРАЦІЯ (ВСТАВТЕ ВАШІ ДАНІ ТУТ) ---
+TOKEN = "8190360942:AAGiKEu3kbGJXv1VunH_75StcOlezCHCgBw"
+# У рядку нижче замініть [ВАШ_ПАРОЛЬ] на реальний пароль від Supabase
+DB_URL = "postgresql+asyncpg://postgres:a02a87a91@db.alefycnhibdovbyodwcb.supabase.co:5432/postgres"
 
-# Перевірка наявності даних
-if not TOKEN or not DB_URL:
-    print("Помилка: BOT_TOKEN або DATABASE_URL не знайдені в змінних оточення!")
-    # Для тестів можна тимчасово вписати сюди, якщо Railway не підтягує:
-    # TOKEN = "ваш_токен"
-    # DB_URL = "ваше_посилання"
+# Перевірка на випадок, якщо забули вставити дані
+if "ВАШ_" in TOKEN or "[ВАШ_ПАРОЛЬ]" in DB_URL:
+    print("❌ ПОМИЛКА: Ви не вставили реальний Токен або Пароль у код!")
     exit(1)
-
-# Автоматичне виправлення протоколу для асинхронності
-if "asyncpg" not in DB_URL:
-    DB_URL = DB_URL.replace("postgresql://", "postgresql+asyncpg://")
 
 # --- 2. НАЛАШТУВАННЯ БАЗИ ДАНИХ ---
 engine = create_async_engine(DB_URL, echo=False)
@@ -32,12 +25,13 @@ dp = Dispatcher()
 # --- 3. ФУНКЦІЯ ПОШУКУ В БД ---
 async def get_consumers_from_db(search_query: str):
     async with async_session() as session:
-        # ILIKE - пошук без урахування регістру
+        # Шукаємо за частковим співпадінням імені (ILIKE - реєстронезалежний пошук)
+        # Таблиця має називатися 'consumers'
         sql = text("SELECT id, name, debt_amount, cutoff_date FROM consumers WHERE name ILIKE :q")
         result = await session.execute(sql, {"q": f"%{search_query}%"})
         return result.all()
 
-# --- 4. INLINE ПОШУК ---
+# --- 4. INLINE ПОШУК (Пункт 9 ТЗ) ---
 @dp.inline_query()
 async def search_consumer(inline_query: types.InlineQuery):
     query_text = inline_query.query.strip()
@@ -45,7 +39,9 @@ async def search_consumer(inline_query: types.InlineQuery):
         return
 
     try:
+        # Отримуємо дані з PostgreSQL (Supabase)
         rows = await get_consumers_from_db(query_text)
+        
         results = []
         for row in rows:
             results.append(
@@ -62,13 +58,17 @@ async def search_consumer(inline_query: types.InlineQuery):
                     )
                 )
             )
+        # Відправляємо результати користувачу
         await inline_query.answer(results, cache_time=1)
     except Exception as e:
-        print(f"Помилка бази даних: {e}")
+        print(f"❌ Помилка при запиті до бази: {e}")
 
 async def main():
-    print("Бот запущений і підключений до БД через Railway...")
+    print("✅ Бот запущений і успішно з'єднаний з Supabase!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        print("Бот зупинений.")
