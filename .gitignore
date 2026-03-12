@@ -1,1 +1,13 @@
+# Файли з ключами та токенами (найважливіше!)
+.env
+config.py
+auth.json
 
+# Тимчасові файли Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Віртуальне середовище
+venv/
+.venv/
