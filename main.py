@@ -8,7 +8,7 @@ from sqlalchemy import text
 # 1. КОНФІГУРАЦІЯ
 TOKEN = "8190360942:AAGiKEu3kbGJXv1VunH_75StcOlezCHCgBw"
 # Формат: postgresql+asyncpg://користувач:пароль@хост/назва_бази
-DB_URL = "postgresql+asyncpg://postgres:a02a87a91A@db.alefycnhibdovbyodwcb.supabase.co:5432/postgres"
+DB_URL = "postgresql+asyncpg://postgres:@db.alefycnhibdovbyodwcb.supabase.co:5432/postgres"
 
 # Створюємо "двигун" для бази даних
 engine = create_async_engine(DB_URL, echo=False)
