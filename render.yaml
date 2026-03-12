@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: my-telegram-bot
+    runtime: python
+    runtimeVersion: 3.13
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: TOKEN
+        scope: run
+      - key: DB_URL
+        scope: run
