@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 
 # --- 1. ПРЯМА КОНФІГУРАЦІЯ (ВСТАВТЕ ВАШІ ДАНІ ТУТ) ---
-TOKEN = "8190360942:AAGiKEu3kbGJXv1VunH_75StcOlezCHCgBw"
+TOKEN = "8190360942:AAG5mp6UGfeCZ2R9Umfimqdi4y_JWttPZxE"
 # У рядку нижче замініть [ВАШ_ПАРОЛЬ] на реальний пароль від Supabase
 DB_URL = "postgresql+asyncpg://postgres:a02a87a91@db.alefycnhibdovbyodwcb.supabase.co:5432/postgres"
 
